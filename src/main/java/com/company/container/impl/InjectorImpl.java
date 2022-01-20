@@ -58,7 +58,7 @@ public class InjectorImpl implements Injector {
      * Counts the number of constructors with the required annotation.
      * If the number of annotations is greater than 1, then TooManyConstructorsException() is thrown.
      * If the number of constructors is less than 1, then a constructor with no arguments is searched,
-     * otherwise a ConstructorNotFoundException() is thrown.
+      otherwise a ConstructorNotFoundException() is thrown.
      * @return true.
      */
     private boolean validateClass(Class<?> impl) {
@@ -78,28 +78,46 @@ public class InjectorImpl implements Injector {
     }
 
     /**
-     * Looks for a bean in a container.
-     * If the component is a Prototype, then a new instance is returned.
-     * If Singleton, then the bean from the container is returned.
-     * If it hasn't been initialized yet, then it is initialized, placed in a container, and returned.
+     * Looking for a pair in a container.
+     * If there is no pair, then null is returned.
+     * If there is a pair, then it returns the bean.
      * @return Bean or null.
      */
     private <T> Object findBean(Class<T> type)
             throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         Pair<BeanScope, Object> scopeAndBean = container.get(type);
         if(scopeAndBean != null && scopeAndBean.getKey().equals(BeanScope.PROTOTYPE)) {                 //PROTOTYPE
-            return (T) buildBean((Class<?>) scopeAndBean.getValue());
+            return (T) getPrototypeBean(scopeAndBean);
         }
         if(scopeAndBean != null && scopeAndBean.getKey().equals(BeanScope.SINGLETON)) {                 //SINGLETON
-            if(scopeAndBean.getValue() instanceof Class<?>) {                            //lazy initialization
-                Object initializedBean = buildBean((Class<?>) scopeAndBean.getValue());
-                Pair<BeanScope, Object> scopeAndInitializedSingletonBean = new Pair<>(BeanScope.SINGLETON, initializedBean);
-                container.put(type, scopeAndInitializedSingletonBean);
-                return (T) initializedBean;
-            }
-            return (T) scopeAndBean.getValue();
+            return (T) getSingletonBean(type, scopeAndBean);
         }
         return null;
+    }
+
+    /**
+     * @return Prototype bean.
+     */
+    private <T> Object getPrototypeBean(Pair<BeanScope, Object> scopeAndBean)
+            throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+        return buildBean((Class<?>) scopeAndBean.getValue());
+    }
+
+    /**
+     * Checks if the bean is initialized.
+     * If yes, then returns it.
+     * If not, then it is initialized.
+     * @return Singleton bean.
+     */
+    private <T> Object getSingletonBean(Class<T> type, Pair<BeanScope, Object> scopeAndBean)
+            throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+        if(scopeAndBean.getValue() instanceof Class<?>) {                                                                //lazy initialization
+            Object initializedBean = buildBean((Class<?>) scopeAndBean.getValue());
+            Pair<BeanScope, Object> scopeAndInitializedSingletonBean = new Pair<>(BeanScope.SINGLETON, initializedBean);
+            container.put(type, scopeAndInitializedSingletonBean);
+            return (T) initializedBean;
+        }
+        return (T) scopeAndBean.getValue();
     }
 
     /**
@@ -116,7 +134,7 @@ public class InjectorImpl implements Injector {
 
     /**
      * Looks for a constructor with an annotation,
-     * if not found, looks for a constructor with no arguments.
+      if not found, looks for a constructor with no arguments.
      * @return A constructor with an annotation or a constructor without arguments and annotations.
      */
     private Constructor<?> findCorrectConstructor(Class<?> impl) {
@@ -132,7 +150,7 @@ public class InjectorImpl implements Injector {
     /**
      * Looks for the dependencies needed to create the bean in the container.
      * If there are no required dependencies, then a BindingNotFoundException() is thrown.
-     * @return An array of bins or an empty array.
+     * @return An array of beans or an empty array.
      */
     private Object[] findDependencyBeans(Class<?>[] classes)
             throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
