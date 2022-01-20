@@ -1,5 +1,9 @@
-package com.company.di;
+package com.company.container.impl;
 
+import com.company.enm.BeanScope;
+import com.company.annotation.Inject;
+import com.company.container.Injector;
+import com.company.container.Provider;
 import com.company.exception.BindingNotFoundException;
 import com.company.exception.ConstructorNotFoundException;
 import com.company.exception.TooManyConstructorsException;
@@ -16,7 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Author : Karavay Artyom
  */
 
-public class InjectorImpl implements Injector{
+public class InjectorImpl implements Injector {
 
     private static final Class<Inject> ANNOTATION_CLASS = Inject.class;
     private final Map<Class<?>, Pair<BeanScope, Object>> container;
@@ -39,14 +43,39 @@ public class InjectorImpl implements Injector{
 
     @Override
     public <T> void bind(Class<T> intf, Class<? extends T> impl) {
+        validateClass(impl);
         container.put(intf, new Pair<>(BeanScope.PROTOTYPE, impl));
     }
 
     @Override
     public <T> void bindSingleton(Class<T> intf, Class<? extends T> impl) {
+        validateClass(impl);
         container.put(intf, new Pair<>(BeanScope.SINGLETON, impl));
     }
 
+
+    /**
+     * Counts the number of constructors with the required annotation.
+     * If the number of annotations is greater than 1, then TooManyConstructorsException() is thrown.
+     * If the number of constructors is less than 1, then a constructor with no arguments is searched,
+     * otherwise a ConstructorNotFoundException() is thrown.
+     * @return true.
+     */
+    private boolean validateClass(Class<?> impl) {
+        long numberOfConstructors = Arrays.stream(impl.getConstructors())
+                .filter(x -> x.isAnnotationPresent(ANNOTATION_CLASS))
+                .count();
+        if(numberOfConstructors > 1) {
+            throw new TooManyConstructorsException();
+        }
+        if(numberOfConstructors < 1) {
+            Arrays.stream(impl.getConstructors())
+                    .filter(x -> x.getParameterCount() == 0)
+                    .findFirst()
+                    .orElseThrow(ConstructorNotFoundException::new);
+        }
+        return true;
+    }
 
     /**
      * Looks for a bean in a container.
@@ -85,34 +114,20 @@ public class InjectorImpl implements Injector{
         return impl.getDeclaredConstructor(argumentTypes).newInstance(arguments);
     }
 
-
     /**
-     * Counts the number of constructors with the required annotation.
-     * If the number of annotations is greater than 1, then TooManyConstructorsException() is thrown.
-     * If the number of constructors is less than 1, then a constructor with no arguments is searched,
-     * otherwise a ConstructorNotFoundException() is thrown.
-     * If there is only one annotated constructor, it is returned.
+     * Looks for a constructor with an annotation,
+     * if not found, looks for a constructor with no arguments.
      * @return A constructor with an annotation or a constructor without arguments and annotations.
      */
     private Constructor<?> findCorrectConstructor(Class<?> impl) {
-        long numberOfConstructors = Arrays.stream(impl.getConstructors())
-                .filter(x -> x.isAnnotationPresent(ANNOTATION_CLASS))
-                .count();
-        if(numberOfConstructors > 1) {
-            throw new TooManyConstructorsException();
-        }
-        if(numberOfConstructors < 1) {
-            return Arrays.stream(impl.getConstructors())
-                    .filter(x -> x.getParameterCount() == 0)
-                    .findFirst()
-                    .orElseThrow(ConstructorNotFoundException::new);
-        }
         return Arrays.stream(impl.getConstructors())
                 .filter(x -> x.isAnnotationPresent(ANNOTATION_CLASS))
                 .findFirst()
-                .get();
+                .orElse(Arrays.stream(impl.getConstructors())
+                        .filter(x -> x.getParameterCount() == 0)
+                        .findFirst()
+                        .orElseThrow(ConstructorNotFoundException::new));
     }
-
 
     /**
      * Looks for the dependencies needed to create the bean in the container.

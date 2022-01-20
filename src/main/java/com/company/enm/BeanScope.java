@@ -1,4 +1,4 @@
-package com.company.di;
+package com.company.enm;
 
 public enum BeanScope {
 

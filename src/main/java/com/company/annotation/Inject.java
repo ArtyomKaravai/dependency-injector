@@ -1,4 +1,4 @@
-package com.company.di;
+package com.company.annotation;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
