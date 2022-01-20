@@ -65,10 +65,10 @@ public class InjectorImpl implements Injector {
         long numberOfConstructors = Arrays.stream(impl.getConstructors())
                 .filter(x -> x.isAnnotationPresent(ANNOTATION_CLASS))
                 .count();
-        if(numberOfConstructors > 1) {
+        if (numberOfConstructors > 1) {
             throw new TooManyConstructorsException();
         }
-        if(numberOfConstructors < 1) {
+        if (numberOfConstructors < 1) {
             Arrays.stream(impl.getConstructors())
                     .filter(x -> x.getParameterCount() == 0)
                     .findFirst()
@@ -86,10 +86,10 @@ public class InjectorImpl implements Injector {
     private <T> Object findBean(Class<T> type)
             throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         Pair<BeanScope, Object> scopeAndBean = container.get(type);
-        if(scopeAndBean != null && scopeAndBean.getKey().equals(BeanScope.PROTOTYPE)) {                 //PROTOTYPE
+        if (scopeAndBean != null && scopeAndBean.getKey().equals(BeanScope.PROTOTYPE)) {                 //PROTOTYPE
             return (T) getPrototypeBean(scopeAndBean);
         }
-        if(scopeAndBean != null && scopeAndBean.getKey().equals(BeanScope.SINGLETON)) {                 //SINGLETON
+        if (scopeAndBean != null && scopeAndBean.getKey().equals(BeanScope.SINGLETON)) {                 //SINGLETON
             return (T) getSingletonBean(type, scopeAndBean);
         }
         return null;
@@ -111,7 +111,7 @@ public class InjectorImpl implements Injector {
      */
     private <T> Object getSingletonBean(Class<T> type, Pair<BeanScope, Object> scopeAndBean)
             throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
-        if(scopeAndBean.getValue() instanceof Class<?>) {                                                                //lazy initialization
+        if (scopeAndBean.getValue() instanceof Class<?>) {                                                                //lazy initialization
             Object initializedBean = buildBean((Class<?>) scopeAndBean.getValue());
             Pair<BeanScope, Object> scopeAndInitializedSingletonBean = new Pair<>(BeanScope.SINGLETON, initializedBean);
             container.put(type, scopeAndInitializedSingletonBean);
@@ -155,7 +155,7 @@ public class InjectorImpl implements Injector {
     private Object[] findDependencyBeans(Class<?>[] classes)
             throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         Object[] dependencyBeans = new Object[classes.length];
-        for(int i = 0; i < classes.length; i++) {
+        for (int i = 0; i < classes.length; i++) {
             Object bean = findBean(classes[i]);
             if (bean == null) {
                 throw new BindingNotFoundException();
