@@ -1,5 +1,6 @@
 package com.company.di.impl;
 
+
 import com.company.container.Injector;
 import com.company.container.impl.InjectorImpl;
 import com.company.exception.BindingNotFoundException;
@@ -33,19 +34,19 @@ class InjectorImplTest {
     }
 
     @Test
-    void bindWithoutAnnotation() throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
-        injector.bind(TestClass.class, WithoutAnnotations.class);
+    void testBindWithoutAnnotation() throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+        injector.bind(TestClass.class, WithoutAnnotations.class);    //With empty constructor
         assertEquals(new WithoutAnnotations(), injector.getProvider(TestClass.class).getInstance());
 
     }
 
     @Test
-    void bindWithoutAnnotationsAndEmptyConstructor() {
+    void testBindWithoutAnnotationsAndEmptyConstructor() {
         assertThrows(ConstructorNotFoundException.class, () -> injector.bind(TestClass.class, WithoutAnnotationsAndEmptyConstructor.class));
     }
 
     @Test
-    void bindWithMultipleAnnotations() {
+    void testBindWithMultipleAnnotations() {
         assertThrows(TooManyConstructorsException.class, () -> injector.bind(TestClass.class, WithMultipleAnnotations.class));
     }
 
@@ -60,7 +61,7 @@ class InjectorImplTest {
 
     @Test
     void testWithMissingBeanToInject() {
-        injector.bind(FirstDependency.class, FirstDependency.class);
+        injector.bind(FirstDependency.class, FirstDependency.class); //For injections into the class Correct need FirstDependency and SecondDependency
         injector.bind(TestClass.class, Correct.class);
         assertThrows(BindingNotFoundException.class, () -> injector.getProvider(TestClass.class));
     }
