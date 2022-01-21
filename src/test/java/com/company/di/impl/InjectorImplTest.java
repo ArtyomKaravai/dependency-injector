@@ -34,7 +34,8 @@ class InjectorImplTest {
     }
 
     @Test
-    void testBindWithoutAnnotation() throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+    void testBindWithoutAnnotation()
+            throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         injector.bind(TestClass.class, WithoutAnnotations.class);    //With empty constructor
         assertEquals(new WithoutAnnotations(), injector.getProvider(TestClass.class).getInstance());
 
@@ -42,16 +43,19 @@ class InjectorImplTest {
 
     @Test
     void testBindWithoutAnnotationsAndEmptyConstructor() {
-        assertThrows(ConstructorNotFoundException.class, () -> injector.bind(TestClass.class, WithoutAnnotationsAndEmptyConstructor.class));
+        assertThrows(ConstructorNotFoundException.class,
+                () -> injector.bind(TestClass.class, WithoutAnnotationsAndEmptyConstructor.class));
     }
 
     @Test
     void testBindWithMultipleAnnotations() {
-        assertThrows(TooManyConstructorsException.class, () -> injector.bind(TestClass.class, WithMultipleAnnotations.class));
+        assertThrows(TooManyConstructorsException.class,
+                () -> injector.bind(TestClass.class, WithMultipleAnnotations.class));
     }
 
     @Test
-    void testCorrectDependencyInjection() throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+    void testCorrectDependencyInjection()
+            throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         TestClass testClass = new Correct(new FirstDependency(), new SecondDependency());
         injector.bind(FirstDependency.class, FirstDependency.class);
         injector.bind(SecondDependency.class, SecondDependency.class);
@@ -61,18 +65,20 @@ class InjectorImplTest {
 
     @Test
     void testWithMissingBeanToInject() {
-        injector.bind(FirstDependency.class, FirstDependency.class); //For injections into the class Correct need FirstDependency and SecondDependency
+        injector.bind(FirstDependency.class, FirstDependency.class); //For injections need FirstDependency and SecondDependency
         injector.bind(TestClass.class, Correct.class);
         assertThrows(BindingNotFoundException.class, () -> injector.getProvider(TestClass.class));
     }
 
     @Test
-    void testWithMissingBeanInContainer() throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+    void testWithMissingBeanInContainer()
+            throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         assertNull(injector.getProvider(TestClass.class).getInstance());
     }
 
     @Test
-    void testSingletonBind() throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+    void testSingletonBind()
+            throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         injector.bindSingleton(TestClass.class, Correct.class);
         injector.bind(FirstDependency.class, FirstDependency.class);
         injector.bind(SecondDependency.class, SecondDependency.class);
@@ -82,7 +88,8 @@ class InjectorImplTest {
     }
 
     @Test
-    void testPrototypeBind() throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+    void testPrototypeBind()
+            throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         injector.bind(TestClass.class, Correct.class);
         injector.bind(FirstDependency.class, FirstDependency.class);
         injector.bind(SecondDependency.class, SecondDependency.class);
