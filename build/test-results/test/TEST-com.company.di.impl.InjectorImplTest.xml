@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.company.di.impl.InjectorImplTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2022-01-31T14:49:33" hostname="CMDB-81166" time="0.029">
+  <properties/>
+  <testcase name="testPrototypeBind()" classname="com.company.di.impl.InjectorImplTest" time="0.018"/>
+  <testcase name="testWithMissingBeanInContainer()" classname="com.company.di.impl.InjectorImplTest" time="0.001"/>
+  <testcase name="testBindWithMultipleAnnotations()" classname="com.company.di.impl.InjectorImplTest" time="0.001"/>
+  <testcase name="testWithMissingBeanToInject()" classname="com.company.di.impl.InjectorImplTest" time="0.0"/>
+  <testcase name="testBindWithoutAnnotation()" classname="com.company.di.impl.InjectorImplTest" time="0.001"/>
+  <testcase name="testCorrectDependencyInjection()" classname="com.company.di.impl.InjectorImplTest" time="0.0"/>
+  <testcase name="testBindWithoutAnnotationsAndEmptyConstructor()" classname="com.company.di.impl.InjectorImplTest" time="0.002"/>
+  <testcase name="testSingletonBind()" classname="com.company.di.impl.InjectorImplTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
